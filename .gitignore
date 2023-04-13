@@ -1,6 +1,6 @@
 .idea
 *.iml
 lakehouse-mock-db/target
-*.iml
-*.iml
 lakehouse-mock-common/target
+lakehouse-main/target
+lakehouse-mock-log/target
