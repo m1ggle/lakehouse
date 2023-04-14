@@ -2,7 +2,10 @@ package com.ronglian.lackehouse.mock.db.bean;
 
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.IdType;
+import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -11,8 +14,8 @@ import java.io.Serializable;
  * </p>
  *
  * @author yawei
- * @since 2023-04-13
  */
+@Data
 public class CouponInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -34,12 +37,12 @@ public class CouponInfo implements Serializable {
     private String couponType;
 
     /**
-     * 满额数（3）
+     * 满额数
      */
     private BigDecimal conditionAmount;
 
     /**
-     * 满件数（4）
+     * 满件数
      */
     private Long conditionNum;
 
@@ -49,39 +52,39 @@ public class CouponInfo implements Serializable {
     private Long activityId;
 
     /**
-     * 减金额（1 3）
+     * 减金额
      */
     private BigDecimal benefitAmount;
 
     /**
-     * 折扣（2 4）
+     * 折扣
      */
-    private BigDecimal benefitDiscount;
+    private Long benefitDiscount;
 
     /**
      * 创建时间
      */
-    private String createTime;
+    private Date createTime;
 
     /**
-     * 范围类型 1、商品(spuid) 2、品类(三级分类id) 3、品牌
+     * 范围类型 1、商品 2、品类 3、品牌
      */
     private String rangeType;
 
     /**
      * 商品id
      */
-    private Integer spuId;
+    private Long spuId;
 
     /**
      * 品牌id
      */
-    private Integer tmId;
+    private Long tmId;
 
     /**
      * 品类id
      */
-    private Integer category3Id;
+    private Long category3Id;
 
     /**
      * 最多领用次数
@@ -89,34 +92,11 @@ public class CouponInfo implements Serializable {
     private Integer limitNum;
 
     /**
-     * 已领用次数
-     */
-    private Integer takenCount;
-
-    /**
-     * 可以领取的开始日期
-     */
-    private String startTime;
-
-    /**
-     * 可以领取的结束日期
-     */
-    private String endTime;
-
-    /**
      * 修改时间
      */
-    private String operateTime;
+    private Date operateTime;
 
-    /**
-     * 过期时间
-     */
-    private String expireTime;
-
-    /**
-     * 范围描述
-     */
-    private String rangeDesc;
+    private Date  expireTime;
 
 
     public Long getId() {
@@ -175,19 +155,19 @@ public class CouponInfo implements Serializable {
         this.benefitAmount = benefitAmount;
     }
 
-    public BigDecimal getBenefitDiscount() {
+    public Long getBenefitDiscount() {
         return benefitDiscount;
     }
 
-    public void setBenefitDiscount(BigDecimal benefitDiscount) {
+    public void setBenefitDiscount(Long benefitDiscount) {
         this.benefitDiscount = benefitDiscount;
     }
 
-    public String getCreateTime() {
+    public Date getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(String createTime) {
+    public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
@@ -199,27 +179,27 @@ public class CouponInfo implements Serializable {
         this.rangeType = rangeType;
     }
 
-    public Integer getSpuId() {
+    public Long getSpuId() {
         return spuId;
     }
 
-    public void setSpuId(Integer spuId) {
+    public void setSpuId(Long spuId) {
         this.spuId = spuId;
     }
 
-    public Integer getTmId() {
+    public Long getTmId() {
         return tmId;
     }
 
-    public void setTmId(Integer tmId) {
+    public void setTmId(Long tmId) {
         this.tmId = tmId;
     }
 
-    public Integer getCategory3Id() {
+    public Long getCategory3Id() {
         return category3Id;
     }
 
-    public void setCategory3Id(Integer category3Id) {
+    public void setCategory3Id(Long category3Id) {
         this.category3Id = category3Id;
     }
 
@@ -231,52 +211,12 @@ public class CouponInfo implements Serializable {
         this.limitNum = limitNum;
     }
 
-    public Integer getTakenCount() {
-        return takenCount;
-    }
-
-    public void setTakenCount(Integer takenCount) {
-        this.takenCount = takenCount;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getOperateTime() {
+    public Date getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(String operateTime) {
+    public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
-    }
-
-    public String getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(String expireTime) {
-        this.expireTime = expireTime;
-    }
-
-    public String getRangeDesc() {
-        return rangeDesc;
-    }
-
-    public void setRangeDesc(String rangeDesc) {
-        this.rangeDesc = rangeDesc;
     }
 
     @Override
@@ -296,12 +236,7 @@ public class CouponInfo implements Serializable {
         ", tmId=" + tmId +
         ", category3Id=" + category3Id +
         ", limitNum=" + limitNum +
-        ", takenCount=" + takenCount +
-        ", startTime=" + startTime +
-        ", endTime=" + endTime +
         ", operateTime=" + operateTime +
-        ", expireTime=" + expireTime +
-        ", rangeDesc=" + rangeDesc +
         "}";
     }
 }
