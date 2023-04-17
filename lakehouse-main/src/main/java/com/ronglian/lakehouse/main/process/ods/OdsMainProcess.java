@@ -5,13 +5,19 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.ronglian.lakehouse.main.common.Constant;
+import com.ronglian.lakehouse.main.util.DateFormatUtil;
 import com.ronglian.lakehouse.main.util.KafkaUtil;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.state.ValueState;
+import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.hashmap.HashMapStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -69,7 +75,40 @@ public class OdsMainProcess {
             e.printStackTrace();
         }
 
-        Map<String, DataStream<JSONObject>> splitStream = splitStream(outputStreamOperator);
+        // 按mid进行分组
+        KeyedStream<JSONObject, String> keyedStream = outputStreamOperator.keyBy(json -> json.getJSONObject("common").getString("mid"));
+        // 新增新老用户判断
+        SingleOutputStreamOperator<JSONObject> mapStream = keyedStream.map(new RichMapFunction<JSONObject, JSONObject>() {
+            private ValueState<String> lastVisitState;
+
+            @Override
+            public void open(Configuration parameters) throws Exception {
+                lastVisitState = getRuntimeContext().getState(new ValueStateDescriptor<String>("last-visit", String.class));
+            }
+
+            @Override
+            public JSONObject map(JSONObject value) throws Exception {
+                String isNew = value.getJSONObject("common").getString("is_new");
+                Long ts = value.getLong("ts");
+                String localDate = DateFormatUtil.toDate(ts);
+
+                String lastVisitDate = lastVisitState.value();
+
+                if ("1".equals(isNew)) {
+                    if (lastVisitDate == null) {
+                        lastVisitState.update(localDate);
+                    } else if (!lastVisitDate.equals(localDate)) {
+                        value.getJSONObject("common").put("is_new", "0");
+                    }
+                } else if (lastVisitDate == null) {
+                    lastVisitState.update(DateFormatUtil.toDate(ts - 24 * 60 * 60 * 1000L));
+
+                }
+                return value;
+            }
+        });
+
+        Map<String, DataStream<JSONObject>> splitStream = splitStream(mapStream);
 
         // 写出数据
         splitStream.get(PAGE)
