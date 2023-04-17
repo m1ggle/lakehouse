@@ -53,8 +53,7 @@ public class KafkaUtil {
      * @return
      */
     public static FlinkKafkaProducer<String> getFlinkKafkaProducer( String topic){
-        FlinkKafkaProducer<String> stringFlinkKafkaProducer = new FlinkKafkaProducer<>(properties.getProperty("kafka.bootstrap.server"), topic, new SimpleStringSchema());
-        return stringFlinkKafkaProducer;
+        return new FlinkKafkaProducer<>(properties.getProperty("kafka.bootstrap.server"), topic, new SimpleStringSchema());
 
     }
 
