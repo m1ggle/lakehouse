@@ -91,7 +91,5 @@ public class DwdTrafficUserJumpDetail {
 
         // todo 10 启动作业
         env.execute(DwdTrafficUserJumpDetail.class.getName());
-
-
     }
 }
