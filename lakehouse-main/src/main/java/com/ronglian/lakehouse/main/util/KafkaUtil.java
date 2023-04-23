@@ -25,6 +25,7 @@ public class KafkaUtil {
         Properties prop = new Properties();
         prop.put(ConsumerConfig.GROUP_ID_CONFIG,groupId);
         prop.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, properties.getProperty("kafka.bootstrap.server"));
+        prop.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,"latest");
         return new FlinkKafkaConsumer<String>(topic, new KafkaDeserializationSchema<String>() {
             @Override
             public boolean isEndOfStream(String s) {

@@ -1,21 +1,22 @@
 package com.ronglian.lakehouse.main.util;
 
+import com.ronglian.lakehouse.main.common.GmallConfig;
+
 import java.sql.*;
 import java.util.Properties;
 
 //org.apache.phoenix.queryserver.client.Driver
 public class PhoenixJDBCExample {
-    static final String JDBC_DRIVER = "org.apache.phoenix.jdbc.PhoenixDriver";
-    static final String IP = "10.41.5.218";
-    static final String PORT = "2181";
-    static final String DB_URL = "jdbc:phoenix:" + IP + ":" + PORT + "/";
+    static final String JDBC_DRIVER = GmallConfig.PHOENIX_DRIVER;
+
+    static final String DB_URL = GmallConfig.PHOENIX_SERVER;
 
     public static void main(String[] args) {
 
         Properties props = new Properties();
-//        props.setProperty("phoenix.schema.isNamespaceMappingEnabled", "true");
-//        props.setProperty("phoenix.schema.mapSystemTablesToNamespace", "true");
-        props.setProperty("hbase.table.sanity.checks", "true");
+        props.setProperty("phoenix.schema.isNamespaceMappingEnabled", "true");
+        props.setProperty("phoenix.schema.mapSystemTablesToNamespace", "true");
+
 
         Connection conn = null;
         Statement st = null;
@@ -33,36 +34,33 @@ public class PhoenixJDBCExample {
 
             st = conn.createStatement();
             // Execute our statements
-//            st.executeUpdate("create table javatest (mykey integer not null primary key, mycolumn varchar)");
-//            st.executeUpdate("upsert into javatest values (1,'Hello')");
-//          Hello  st.executeUpdate("upsert into javatest values (2,'Java Application')");
+            st.executeUpdate("create table test_main (main_key integer not null primary key, main_column varchar)");
+            st.executeUpdate("upsert into test_main values (1,'Hello')");
 
             // Query for table
-            ps = conn.prepareStatement("select * from javatest");
+            ps = conn.prepareStatement("select * from test_main");
             rs = ps.executeQuery();
             System.out.println("Table Values");
 
             while(rs.next()) {
-                Integer myKey = rs.getInt(1);
-                String myColumn = rs.getString(2);
-                System.out.println("\tRow: " + myKey + " = " + myColumn);
+                int mainKey = rs.getInt(1);
+                String mainColumn = rs.getString(2);
+                System.out.println("\tRow: " + mainKey + " = " + mainColumn);
             }
 
             rs.close();
             st.close();
             conn.close();
 
-        } catch (SQLException se) {
+        } catch (Exception se) {
             se.printStackTrace();
-        } catch (Exception e) {
-            // Handle errors for Class.forName
-            e.printStackTrace();
-        } finally {
+        }// Handle errors for Class.forName
+        finally {
             // finally block used to close resources
             try {
                 if (st != null)
                     st.close();
-            } catch (SQLException se2) {
+            } catch (SQLException ignored) {
             } // nothing we can do
             try {
                 if (conn != null)

@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.table.expressions.E;
 
 /**
  * &#064;description  流量域独立访客事务事实表。过滤页面数据中的独立访客访问记录，即将用户首日访问的记录输出到特定topic的kafka流中，当日其他的访问记录丢弃掉
@@ -42,7 +43,7 @@ public class DwdTrafficUniqueVisitorDetail {
         //设置本地运行用户
         System.setProperty("HADOOP_USER_NAME","hadoop");
 
-        String topic = "TOPIC_DWD_LOG_PAGE";
+        String topic = "ODS_BASE_LOG";
         String groupId = "DWD_TRAFFIC_PAGE_LOG_GROUP";
 
 
@@ -55,11 +56,17 @@ public class DwdTrafficUniqueVisitorDetail {
          */
         SingleOutputStreamOperator<JSONObject> jsonObjectSingleOutputStreamOperator = kafkaDataSource.flatMap((FlatMapFunction<String, JSONObject>) (value, out) -> {
             JSONObject jsonObject = JSON.parseObject(value);
-            String lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
+            String lastPageId = "";
+            try{
+                lastPageId = jsonObject.getJSONObject("page").getString("last_page_id");
+            }catch (Exception e){
+                lastPageId = "error";
+            }
+
             if (lastPageId == null) {
                 out.collect(jsonObject);
             }
-        });
+        }).returns(JSONObject.class);
 
         //todo: 2 按照Mid分组
         KeyedStream<JSONObject, String> keyedStream = jsonObjectSingleOutputStreamOperator.keyBy(json -> json.getJSONObject("common").getString("mid"));

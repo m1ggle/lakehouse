@@ -49,7 +49,8 @@ public class DwdTrafficUserJumpDetail {
         // todo 3 将每行数据转为json对象,并提取时间戳生成Watermark
         SingleOutputStreamOperator<JSONObject> jsonObjDS = kafkaDataSource.map(JSON::parseObject)
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<JSONObject>forBoundedOutOfOrderness(Duration.ofSeconds(2))
-                        .withTimestampAssigner((SerializableTimestampAssigner<JSONObject>) (element, recordTimestamp) -> element.getLong("ts")));
+                        .withTimestampAssigner((SerializableTimestampAssigner<JSONObject>) (element, recordTimestamp) -> element.getLong("ts")))
+                .returns(JSONObject.class);
 
         // todo 4 按照mid分组
         // 优化到todo 6
@@ -83,7 +84,7 @@ public class DwdTrafficUserJumpDetail {
         DataStream<JSONObject> sideOutput = selectedDS.getSideOutput(timeoutTag);
         // todo 8 合并两种事件
 
-        DataStream<JSONObject> unionDS = selectedDS.union(selectedDS);
+        DataStream<JSONObject> unionDS = selectedDS.union(sideOutput);
 
         // todo 9 将数据写出到kafka
         String sinkTopic = "DWM_USER_JUMP_DETAIL";

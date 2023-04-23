@@ -44,14 +44,14 @@ public class OdsMainProcess {
 		// 通用配置
         env.setParallelism(1);
         //开启checkpoint
-        env.enableCheckpointing(5*60000L, CheckpointingMode.EXACTLY_ONCE);
-        env.getCheckpointConfig().setCheckpointTimeout(10*60000L);
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
-        //重启策略
-        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,5000L));
-        //设置后端状态
-        env.setStateBackend(new HashMapStateBackend());
-        env.getCheckpointConfig().setCheckpointStorage("hdfs://kubemaster:8020/flink/check_point");
+//        env.enableCheckpointing(5*60000L, CheckpointingMode.EXACTLY_ONCE);
+//        env.getCheckpointConfig().setCheckpointTimeout(10*60000L);
+//        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
+//        //重启策略
+//        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,5000L));
+//        //设置后端状态
+//        env.setStateBackend(new HashMapStateBackend());
+//        env.getCheckpointConfig().setCheckpointStorage("hdfs://kubemaster:8020/flink/check_point");
         //设置本地运行用户
         System.setProperty("HADOOP_USER_NAME","hadoop");
 
@@ -193,7 +193,7 @@ public class OdsMainProcess {
                     // page
                     JSONObject pageJsonArray = value.getJSONObject(PAGE);
                     if (pageJsonArray != null) {
-                        ctx.output(pageTag, pageJsonArray);
+                        ctx.output(pageTag, value);
                     }
                 }
             }
