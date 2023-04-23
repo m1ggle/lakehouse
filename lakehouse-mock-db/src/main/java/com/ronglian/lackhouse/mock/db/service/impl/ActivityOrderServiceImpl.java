@@ -6,7 +6,7 @@ import com.ronglian.lackhouse.mock.db.bean.ActivityOrder;
 import com.ronglian.lackhouse.mock.db.bean.ActivitySku;
 import com.ronglian.lackhouse.mock.db.bean.OrderDetail;
 import com.ronglian.lackhouse.mock.db.bean.OrderInfo;
-import com.ronglian.lackehouse.mock.db.common.util.*;
+import com.ronglian.lackhouse.mock.db.common.util.*;
 import com.ronglian.lackhouse.mock.db.common.util.ParamUtil;
 import com.ronglian.lackhouse.mock.db.common.util.RandomNum;
 import com.ronglian.lackhouse.mock.db.mapper.ActivityOrderMapper;

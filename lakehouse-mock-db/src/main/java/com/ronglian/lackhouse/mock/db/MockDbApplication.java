@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
-@MapperScan("com.ronglian.lackehouse.mock.db.mapper")
+@MapperScan("com.ronglian.lackhouse.mock.db.mapper")
 public class MockDbApplication {
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(MockDbApplication.class, args);

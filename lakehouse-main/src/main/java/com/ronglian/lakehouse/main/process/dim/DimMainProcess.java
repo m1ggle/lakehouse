@@ -13,6 +13,7 @@ import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.state.MapStateDescriptor;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.api.datastream.BroadcastConnectedStream;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -29,6 +30,16 @@ public class DimMainProcess {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
 
+        //开启checkpoint
+//        env.enableCheckpointing(5*60000L, CheckpointingMode.EXACTLY_ONCE);
+//        env.getCheckpointConfig().setCheckpointTimeout(10*60000L);
+//        env.getCheckpointConfig().setMaxConcurrentCheckpoints(2);
+//        //重启策略
+//        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(3,5000L));
+//        //设置后端状态
+//        env.setStateBackend(new HashMapStateBackend());
+//        env.getCheckpointConfig().setCheckpointStorage("hdfs://10.41.5.218:8020/flink/check_point/dim");
+        //设置本地运行用户
         System.setProperty("HADOOP_USER_NAME","hadoop");
 
         String baseDbTopic = "ODS_BASE_DB";
@@ -36,7 +47,7 @@ public class DimMainProcess {
 
         FlinkKafkaConsumer<String> baseDbStreams = KafkaUtil.getFlinkKafkaConsumer(baseDbTopic, baseDbGroupId);
         DataStreamSource<String> baseDbStreamSource = env.addSource(baseDbStreams);
-
+        baseDbStreamSource.print();
         // 过滤掉非JSON数据&保留新增、变化以及初始化数据并将数据转换为JSON格式
         SingleOutputStreamOperator<JSONObject> streamOperator = baseDbStreamSource.flatMap((FlatMapFunction<String, JSONObject>) (value, out) -> {
             try {
@@ -46,11 +57,10 @@ public class DimMainProcess {
                 if ("insert".equals(type) || "update".equals(type) || "bootstrap-insert".equals(type)) {
                     out.collect(jsonObject);
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        });
+        }).returns(TypeInformation.of(JSONObject.class));
 
         // 获取MySQL配置信息
         Properties mysqlConfigs = ConfigUtil.getConfigs("system.properties");
@@ -60,13 +70,15 @@ public class DimMainProcess {
                 .port(3306)
                 .username(mysqlConfigs.getProperty("datasource.mysql.username"))
                 .password(mysqlConfigs.getProperty("datasource.mysql.password"))
-                .databaseList("gmall_config")
-                .tableList("gmall_config.table_process")
+                .databaseList("gmall-rt")
+                .tableList("gmall-rt.user_info")
+//                .databaseList("gmall_config")
+//                .tableList("gmall_config.table_process")
                 .startupOptions(StartupOptions.initial())
                 .deserializer(new JsonDebeziumDeserializationSchema())
                 .build();
 
-        DataStreamSource<String> mysqlSourceDS = env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "mysql");
+        DataStreamSource<String> mysqlSourceDS = env.fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MysqlSource");
 
         // 配置MySQL为广播流
         MapStateDescriptor<String, TableProcess> stateDescriptor = new MapStateDescriptor<>("map-status", String.class, TableProcess.class);

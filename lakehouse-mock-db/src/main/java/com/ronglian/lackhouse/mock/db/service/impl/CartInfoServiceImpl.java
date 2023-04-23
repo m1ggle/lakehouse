@@ -12,7 +12,6 @@ import com.ronglian.lackhouse.mock.db.mapper.CartInfoMapper;
 import com.ronglian.lackhouse.mock.db.mapper.UserInfoMapper;
 import com.ronglian.lackhouse.mock.db.service.CartInfoService;
 import com.ronglian.lackhouse.mock.db.service.SkuInfoService;
-import com.ronglian.lackehouse.mock.db.common.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
